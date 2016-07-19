@@ -1,0 +1,103 @@
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<dom-module id="pokemon-details">
+  <template>
+    <style is="custom-style">
+      .poke-header {
+        @apply(--layout-horizontal);
+        @apply(--paper-font-headline);
+        margin-top: 0;
+      }
+
+      .flex-child {
+        @apply(--layout-flex);
+      }
+
+      .secondary {
+        color: var(--paper-grey-600);
+      }
+
+      .stats-table {
+        border-collapse: collapse;
+        width: 100%;
+      }
+
+      .stats-table tr {
+        border-bottom: solid 1px var(--paper-grey-600);
+      }
+
+      .stats-table tr:first-child {
+        border-top: solid 1px var(--paper-grey-600);
+      }
+
+      .stats-table td {
+        width: 50%;
+        padding: 4px;
+      }
+
+      .stats-table td:not(:first-child) {
+        border-left: solid 1px var(--paper-grey-600);
+      }
+    </style>
+
+    <paper-card image="[[pokeImg]]" elevation="2">
+      <div class="card-content">
+        <h3 class="poke-header">
+          <span class="flex-child">[[pokemon.name]]</span>
+          <span class="secondary">#[[pokeId]]</span>
+        </h3>
+        <table class="stats-table">
+          <tr>
+            <td>Type</td>
+            <td>[[pokeType]]</td>
+          </tr>
+          <template is="dom-repeat" items="{{pokeStats}}">
+            <tr>
+              <td>[[item.displayName]]</td>
+              <td>[[item.value]]</td>
+            </tr>
+          </template>
+        </table>
+      </div>
+    </paper-card>
+
+  </template>
+
+  <script>
+    'use strict';
+
+    Polymer({
+      is: 'pokemon-details',
+
+      properties: {
+        pokemon: {
+          type: Object,
+          observer: '_pokemonChanged'
+        }
+      },
+
+      _pokemonChanged: function() {
+        this.pokeType = this.pokemon.types.map(type => type.name).join(', ');
+        this.pokeId = this._leftPad(this.pokemon.pkdx_id);
+        this.pokeImg = `http://assets.pokemon.com/assets/cms2/img/pokedex/full/${this.pokeId}.png`;
+
+        this.pokeStats = [
+          {displayName: 'Attack', value: this.pokemon.attack},
+          {displayName: 'Defense', value: this.pokemon.defense},
+          {displayName: 'SP Attack', value: this.pokemon.sp_atk},
+          {displayName: 'SP Defense', value: this.pokemon.sp_def},
+          {displayName: 'Speed', value: this.pokemon.speed},
+          {displayName: 'Weight', value: this.pokemon.weight},
+          {displayName: 'HP', value: this.pokemon.hp},
+          {displayName: 'Total moves', value: this.pokemon.moves.length}
+        ]
+      },
+
+      _leftPad: function(number) {
+        const pad = "000";
+        const str = String(number);
+        return pad.length > str.length ? pad.substring(str.length) + str : str;
+      }
+    });
+  </script>
+</dom-module>

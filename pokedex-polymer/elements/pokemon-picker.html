@@ -1,0 +1,148 @@
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="../bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="../bower_components/iron-label/iron-label.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="type-filter.html">
+<link rel="import" href="pokemon-card.html">
+
+
+<dom-module id="pokemon-picker">
+  <template>
+    <style is="custom-style">
+      :host {
+        display: block;
+      }
+
+      .poke-card {
+        max-width: 150px;
+        margin: 5px;
+      }
+
+      .poke-card.iron-selected {
+        box-shadow: 0 0 10px #3B99FC;
+        border-radius: 2px;
+      }
+
+      #loadButton {
+        background-color: var(--paper-indigo-500);
+        color: white;
+        margin: 20px;
+      }
+
+      .loading-indicator {
+        margin: 25px;
+      }
+
+      .flex-wrap {
+        @apply(--layout-horizontal);
+        @apply(--layout-wrap);
+        @apply(--layout-center-justified);
+        background-color: transparent;
+      }
+
+      .info-message {
+        margin: 20px 0;
+      }
+    </style>
+
+    <type-filter id="typeFilter" on-iron-select="_onTypeSelect" value="{{selectedType}}"></type-filter>
+
+    <iron-ajax id="pokemonsAjax" url="[[_buildUrl()]]" handle-as="json" on-response="_handleFetchResponse"></iron-ajax>
+    <iron-localstorage name="pokemons" value="{{pokemons}}" on-iron-localstorage-load-empty="_loadData"
+                       on-iron-localstorage-load="_onLoadEnded"></iron-localstorage>
+
+    <iron-selector id="selector" class="flex-wrap" selected="0" on-iron-select="_onSelect">
+      <template is="dom-repeat" id="pokemonList" items="{{pokemons}}" filter="_filterByType" observe="selectedType">
+        <pokemon-card class="poke-card" pokemon="[[item]]"></pokemon-card>
+      </template>
+    </iron-selector>
+
+    <div class="info-message" hidden$="[[!noRenderedPokemons]]">No pokemons found. Press the "Load more" button or change filters.</div>
+
+    <paper-spinner-lite class="loading-indicator" active hidden$="[[!loading]]"></paper-spinner-lite>
+    <paper-button id="loadButton" on-click="loadMore" raised hidden$="[[loading]]">Load more</paper-button>
+
+  </template>
+
+  <script>
+    'use strict';
+
+    Polymer({
+      is: 'pokemon-picker',
+
+      properties: {
+        pokemons: Array,
+
+        value: {
+          type: Object,
+          notify: true
+        },
+
+        initialLoading: {
+          type: Boolean,
+          notify: true,
+          value: true
+        },
+
+        loading: {
+          type: Boolean,
+          notify: true,
+          reflectToAttribute: true
+        }
+      },
+
+      loadMore: function() {
+        this.loading = true;
+        this.$.pokemonsAjax.url = this._buildUrl();
+        this._loadData();
+      },
+
+      _loadData: function() {
+        this.$.pokemonsAjax.generateRequest();
+      },
+
+      _handleFetchResponse: function(event, req) {
+        if(this.pokemons) {
+          this.push('pokemons', ...req.response.objects);
+        } else {
+          this.set('pokemons', req.response.objects);
+        }
+        this._onLoadEnded();
+      },
+
+      _onLoadEnded: function() {
+        this.initialLoading = false;
+        this.loading = false;
+      },
+
+      _onSelect: function(event, selected) {
+        this.value = selected.item.pokemon;
+        this.noRenderedPokemons = this.$.pokemonList.renderedItemCount === 0;
+      },
+
+      _filterByType: function(pokemon) {
+        if (this.selectedType) {
+          return pokemon.types.some(type => type.name.toLowerCase() === this.selectedType.toLowerCase());
+        } else {
+          return true;
+        }
+      },
+
+      _onTypeSelect: function() {
+        this.$.pokemonList.render();
+        this.noRenderedPokemons = this.$.pokemonList.renderedItemCount === 0;
+      },
+
+      _buildUrl: function() {
+        let result = 'http://pokeapi.co/api/v1/pokemon/?limit=24';
+        if (this.pokemons) {
+          result += '&offset=' + this.pokemons.length;
+        }
+        return result;
+      }
+    });
+  </script>
+</dom-module>

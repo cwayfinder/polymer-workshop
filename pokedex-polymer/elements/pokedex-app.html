@@ -1,0 +1,73 @@
+<link rel="import" href="../bower_components/paper-styles/color.html">
+<link rel="import" href="../bower_components/paper-styles/default-theme.html">
+<link rel="import" href="../bower_components/paper-styles/shadow.html">
+<link rel="import" href="../bower_components/paper-styles/typography.html">
+
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner-lite.html">
+
+<link rel="import" href="pokemon-picker.html">
+<link rel="import" href="pokemon-details.html">
+
+
+<dom-module id="pokedex-app">
+  <template>
+    <style is="custom-style">
+      :host {
+        @apply(--paper-font-common-base);
+        text-align: center;
+      }
+
+      h1 {
+        @apply(--paper-font-display3);
+      }
+
+      .loading-indicator {
+        margin: 20px;
+      }
+
+      @media (min-width: 520px) {
+        aside {
+          @apply(--layout-vertical);
+          @apply(--layout-center-justified);
+          @apply(--layout-fixed-right);
+
+          width: 310px;
+          padding: 20px;
+        }
+
+        :host:not([loading]) main {
+          max-width: calc(100% - 330px - 20px);
+          padding: 0 10px;
+        }
+      }
+    </style>
+
+
+    <h1>Pokédex</h1>
+
+    <aside hidden$="[[loading]]">
+      <pokemon-details pokemon="[[selectedPokemon]]"></pokemon-details>
+    </aside>
+
+    <main>
+      <paper-spinner-lite class="loading-indicator" active hidden$="[[!loading]]"></paper-spinner-lite>
+      <pokemon-picker value="{{selectedPokemon}}" initial-loading="{{loading}}" hidden$="[[loading]]"></pokemon-picker>
+    </main>
+
+  </template>
+
+  <script>
+    'use strict';
+
+    Polymer({
+      is: 'pokedex-app',
+
+      properties: {
+        loading: {
+          type: Boolean,
+          reflectToAttribute: true
+        }
+      }
+    });
+  </script>
+</dom-module>
