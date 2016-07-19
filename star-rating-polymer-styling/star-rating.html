@@ -1,0 +1,67 @@
+<link rel="import" href="bower_components/polymer/polymer.html">
+
+<dom-module id="star-rating">
+  <template>
+    <style>
+      :host {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        outline-width: 1px;
+      }
+
+      .star {
+        display: inline-block;
+        height: var(--star-size, 36px);
+        width: var(--star-size, 36px);
+        cursor: pointer;
+        background: rgba(255,255,255,0) url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjQ0NDQ0NDIiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiIHdpZHRoPSIxOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik05IDExLjNsMy43MSAyLjctMS40Mi00LjM2TDE1IDdoLTQuNTVMOSAyLjUgNy41NSA3SDNsMy43MSAyLjY0TDUuMjkgMTR6Ii8+CiAgICA8cGF0aCBkPSJNMCAwaDE4djE4SDB6IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==) no-repeat center center;
+        background-size: cover;
+      }
+
+      .star.selected {
+        background-image: url(data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRjFDNDBGIiBoZWlnaHQ9IjE4IiB2aWV3Qm94PSIwIDAgMTggMTgiIHdpZHRoPSIxOCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICAgIDxwYXRoIGQ9Ik05IDExLjNsMy43MSAyLjctMS40Mi00LjM2TDE1IDdoLTQuNTVMOSAyLjUgNy41NSA3SDNsMy43MSAyLjY0TDUuMjkgMTR6Ii8+CiAgICA8cGF0aCBkPSJNMCAwaDE4djE4SDB6IiBmaWxsPSJub25lIi8+Cjwvc3ZnPg==);
+      }
+
+    </style>
+
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+    <div class="star"></div>
+  </template>
+
+  <script>
+    Polymer({
+      is: 'star-rating',
+      properties: {
+        value: {
+          type: Number,
+          notify: true,
+          reflectToAttribute: true,
+          observer: '_toggleStars'
+        }
+      },
+      attached() {
+        this._stars = Array.from(Polymer.dom(this.root).querySelectorAll('.star'));
+        this._toggleStars(this.value);
+        this._applyDOMEvents();
+      },
+      _toggleStars(val) {
+        if (this._stars) {
+          const toggleSelection = (item, index) => item.classList[index < val ? 'add' : 'remove']('selected');
+          this._stars.forEach(toggleSelection);
+        }
+      },
+      _applyDOMEvents() {
+        this._stars.forEach((item, index) => {
+          item.addEventListener('click', () => {
+            this.value = index + 1;
+          });
+        });
+      }
+    });
+  </script>
+</dom-module>
