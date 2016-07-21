@@ -3,16 +3,15 @@ const SELECTED_IMG_BKG = 'data:image/svg+xml;base64,PHN2ZyBmaWxsPSIjRjFDNDBGIiBo
 
 const innerHtml = `
       <style>
-         :host {
+         star-rating {
            display: flex;
            align-items: center;
            justify-content: center;
            width: 100%;
-           outline-width: 1px;
          }
 
-         .star {
-           display: inline-block;
+         star-rating .star {
+            display: inline-block;
             height: 36px;
             width: 36px;
             cursor: pointer;
@@ -20,7 +19,7 @@ const innerHtml = `
             background-size: cover;
          }
 
-         .star.selected {
+         star-rating .star.selected {
            background-image: url(${SELECTED_IMG_BKG});
          }
 
@@ -34,10 +33,9 @@ const innerHtml = `
 
 class StarRating extends HTMLElement {
   attachedCallback() {
-    this._root = this.createShadowRoot();
-    this._root.innerHTML = innerHtml;
+    this.innerHTML = innerHtml;
 
-    this._stars = Array.from(this._root.querySelectorAll('.star'));
+    this._stars = Array.from(this.querySelectorAll('.star'));
     this._toggleStars(this.getAttribute('value'));
     this._applyDOMEvents();
   }
